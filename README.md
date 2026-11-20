@@ -169,6 +169,21 @@ bash /d/claude-for-work/claude-code-skills/tooling/remote-test.sh -- \
 `uji-api-riwayat.php` memuat uji kebocoran Resource dengan baris berpenanda
 milik pegawai lain dan di luar 90 hari.
 
+Bila VM tidak terjangkau, skrip yang sama dapat dijalankan di laptop dengan
+PHP 8.4. `.env` laptop memakai MySQL untuk cache dan sesi, dan penyimpan
+cache yang sudah terselesaikan saat bootstrap (pembatas laju `api.auth`)
+tidak ikut berpindah ke `array` meski skrip mengubah config. Timpa lewat env:
+
+```bash
+CACHE_STORE=array SESSION_DRIVER=array QUEUE_CONNECTION=sync DB_CONNECTION=sqlite DB_DATABASE=:memory: \
+  php -d extension=pdo_sqlite -d extension=sqlite3 packages/nawasara-kisara-pdf/tests/manual/uji-api-riwayat.php
+```
+
+Jebakan saat menulis uji izin: `Livewire::test()` **tidak** melempar
+`AuthorizationException`. Livewire merendernya menjadi jawaban 403, jadi uji
+penolakan wajib membaca status jawaban; menunggu exception membuat uji izin
+selalu gagal (atau, bila ditulis terbalik, selalu lulus).
+
 ## Roadmap
 
 - Nama pegawai di halaman audit (dari cache Keycloak), tanpa mengubah API.

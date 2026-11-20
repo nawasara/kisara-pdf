@@ -58,9 +58,17 @@ $cek = function (string $label, bool $ok, string $detail = '') use (&$gagal) {
     if (! $ok) { $gagal++; }
     echo ($ok ? '  OK   ' : '  GAGAL')." {$label}".($detail ? "\n         {$detail}" : '')."\n";
 };
+// Livewire::test TIDAK melempar AuthorizationException: RequestBroker
+// merendernya menjadi jawaban 403 (withoutExceptionHandling mengecualikan
+// kelas itu). Jadi penolakan dibaca dari status jawaban Testable juga.
 $tolak = function (callable $fn): bool {
-    try { $fn(); } catch (AuthorizationException) { return true; } catch (\Throwable $e) {
+    try { $r = $fn(); } catch (AuthorizationException) { return true; } catch (\Throwable $e) {
         return $e instanceof Symfony\Component\HttpKernel\Exception\HttpException && $e->getStatusCode() === 403;
+    }
+    if ($r instanceof \Livewire\Features\SupportTesting\Testable) {
+        $resp = (fn () => $this->lastState->getResponse())->call($r);
+
+        return $resp !== null && $resp->getStatusCode() === 403;
     }
 
     return false;
@@ -78,6 +86,9 @@ Schema::create('activity_log', function ($t) {
 });
 (require $root.'/packages/nawasara-sync/database/migrations/2026_04_25_000001_create_nawasara_sync_jobs_table.php')->up();
 (require $root.'/vendor/spatie/laravel-permission/database/migrations/create_permission_tables.php.stub')->up();
+// Job yang gagal memicu aturan sync.job.failed nawasara/alerting; tanpa tabelnya
+// sebab kegagalan asli tertutup galat "no such table".
+foreach (glob($root.'/packages/nawasara-alerting/database/migrations/*.php') as $f) { (require $f)->up(); }
 foreach (glob($root.'/packages/nawasara-kisara-pdf/database/migrations/*.php') as $f) { (require $f)->up(); }
 
 echo "=== izin ===\n";

@@ -23,7 +23,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Nawasara\KisaraPdf\\": "src/"
+            "Nawasara\\KisaraPdf\\": "src/"
         }
     },
     "require": {
@@ -38,7 +38,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Nawasara\KisaraPdf\KisaraPdfServiceProvider"
+                "Nawasara\\KisaraPdf\\KisaraPdfServiceProvider"
             ]
         }
     },

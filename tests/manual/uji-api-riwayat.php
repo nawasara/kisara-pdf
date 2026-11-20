@@ -147,6 +147,11 @@ $cek('4 menit ke depan (selisih jam): diterima', $post([$item(['started_at' => n
 $cek('selesai sebelum mulai: 422', $post([$item(['finished_at' => now()->utc()->subMinutes(20)->format('Y-m-d\TH:i:s\Z')])])->getStatusCode() === 422);
 $cek('waktu bukan tanggal: 422', $post([$item(['started_at' => 'kemarin sore'])])->getStatusCode() === 422);
 $cek('status di luar daftar: 422', $post([$item(['status' => 'pending'])])->getStatusCode() === 422);
+// Kontrak v1.1: error_code teks bebas <= 64 (daftar kanonik K-3 hanya panduan).
+$r = $post([$p = $item(['status' => 'failed', 'error_code' => 'http_502']), $p2 = $item(['status' => 'failed', 'error_code' => str_repeat('e', 64)])]);
+$cek('error_code kanonik http_502 dan teks bebas 64 karakter: diterima', $r->getStatusCode() === 200
+    && Activity::where('job_id', $p['job_id'])->value('error_code') === 'http_502' && strlen((string) Activity::where('job_id', $p2['job_id'])->value('error_code')) === 64, $r->getContent());
+$cek('error_code 65 karakter: 422', $post([$item(['status' => 'failed', 'error_code' => str_repeat('e', 65)])])->getStatusCode() === 422);
 $cek('destination di luar daftar: 422', $post([$item(['destination' => 'email'])])->getStatusCode() === 422);
 $cek('items kosong: 422', $post([])->getStatusCode() === 422);
 $cek('tanpa items: 422', $call('POST', '/activities', ['data' => []], $tWrite)->getStatusCode() === 422);
