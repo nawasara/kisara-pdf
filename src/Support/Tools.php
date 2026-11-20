@@ -22,6 +22,10 @@ final class Tools
         'pdf-to-word' => 'PDF ke Word',
         'pdf-to-img' => 'PDF ke gambar',
         'pdf-to-text' => 'PDF ke teks',
+        // FR-17 (kontrak K-5 v1.4): konversi per format dari beranda.
+        'pdf-to-ppt' => 'PDF ke PowerPoint',
+        'pdf-to-excel' => 'PDF ke Excel',
+        'pdf-to-pdfa' => 'PDF ke PDF/A',
         'add-password' => 'Kunci sandi',
         'remove-password' => 'Buka sandi',
         'watermark' => 'Watermark',

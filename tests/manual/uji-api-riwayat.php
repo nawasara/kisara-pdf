@@ -134,6 +134,10 @@ $sebelum = Activity::count();
 $r = $post([$item(), $item(['tool' => 'url-to-pdf'])]);
 $cek('alat di luar K-5: 422, galat menunjuk items.1.tool', $r->getStatusCode() === 422 && ($body($r)['error']['code'] ?? '') === 'validation_failed' && array_key_exists('items.1.tool', $body($r)['error']['fields'] ?? []), $r->getContent());
 $cek('satu butir salah: butir sah di batch yang sama TIDAK disimpan', Activity::count() === $sebelum);
+// K-5 v1.4 (FR-17): gateway mulai mengirim tiga alat ini; bila ditolak, SELURUH batch riwayat hilang.
+$r = $post([$item(['tool' => 'pdf-to-ppt']), $item(['tool' => 'pdf-to-excel']), $item(['tool' => 'pdf-to-pdfa'])]);
+$cek('alat konversi FR-17 (pdf-to-ppt, pdf-to-excel, pdf-to-pdfa) diterima', $r->getStatusCode() === 200 && Activity::count() === $sebelum + 3, $r->getContent());
+$sebelum = Activity::count();
 $cek('NIP 17 digit: 422', $post([$item(['nip' => '19950614202012100'])])->getStatusCode() === 422);
 $cek('NIP berhuruf: 422', $post([$item(['nip' => '19950614202012100x'])])->getStatusCode() === 422);
 $cek('file_name 1001 karakter: 422', $post([$item(['file_name' => str_repeat('a', 997).'.pdf!'])])->getStatusCode() === 422);
